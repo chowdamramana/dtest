@@ -91,7 +91,7 @@ def dynamodb_put_data(payload):
 
     except Exception as e:
         print(f"Error fetching item from DynamoDB: {str(e)}")
-        
+
     put_response = table.put_item(Item=item)
     return put_response
 
@@ -101,20 +101,27 @@ def generate_random_intentid():
     return ''.join(random.choice(characters) for _ in range(intentid_length))
 
 def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
-    filter_expression = (
-        Attr('intentTypeId').eq(intent_type_id) &
-        Attr('key.orgId').eq(org_id) &
-        Attr('key.carrierDiv').eq(carrier_div) &
-        Attr('key.planId').eq(plan_id) &
-        Attr('key.state').eq(state)
-    )
+    filter_expression = Attr('intentTypeId').eq(intent_type_id)
+    # filter_expression = (
+    #     Attr('intentTypeId').eq(intent_type_id) &
+    #     Attr('key.orgId').eq(org_id) &
+    #     Attr('key.carrierDiv').eq(carrier_div) &
+    #     Attr('key.planId').eq(plan_id) &
+    #     Attr('key.state').eq(state)
+    # )
 
     try:
         items = dynamo_table_scan(filter_expression)
+        print(f"itend id verification items {items}")
+        if items:
+            for data in items:
+                if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['plan_id'] == plan_id and data['key']['state'] == state:
+                    return items[0]['intentid']
+        else:
+            return generate_random_intentid()
     except Exception as e:
-        print(f"failed to perform scan to get intent id {e}")
-
-    if items:
-        return items[0]['intentid']
-    else:
-        return generate_random_intentid()
+        return {
+            'statusCode': 500,
+            'body': json.dumps(f'failed to perform scan to get intent id: {str(e)}')
+        }
+    
