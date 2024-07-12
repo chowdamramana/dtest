@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Attr
 
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('Bef_Intent_Api_Dev')
+table = dynamodb.Table('bef_Intent_Api_Dev')
 current_time = datetime.datetime.now().isoformat()
 
 def lambda_handler(event, context):
