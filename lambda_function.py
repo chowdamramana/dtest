@@ -67,6 +67,8 @@ def dynamodb_put_data(payload):
     )
     
     intentid = get_intentid(intent_type_id, org_id, carrier_div, plan_id, state)
+
+    print(f"intent id : {intentid}")
    
     item = {
             'intentid': intentid, 
@@ -80,8 +82,9 @@ def dynamodb_put_data(payload):
             'create_date': current_time,
             'update_date': None
         }
+    print(f"dynamo db put data item {item}")
     try:
-        existing_item = table.get_item(Key={'intentid': intentid}).get('Item')
+        existing_item = table.get_item(Key={'intentid': item['intentid']}).get('Item')
         print(f"existing data : {existing_item}")
         if existing_item:
             item['update_date'] = current_time
@@ -116,7 +119,7 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
         if items:
             for data in items:
                 if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['plan_id'] == plan_id and data['key']['state'] == state:
-                    return items[0]['intentid']
+                    return data['intentid']
         else:
             return generate_random_intentid()
     except Exception as e:
