@@ -115,19 +115,13 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
 
     try:
         items = dynamo_table_scan(filter_expression)
-        print(f"intentid verification items {items}")
-        print(f"intenttype id : {intent_type_id}")
-        print(f"orgId id : {org_id}")
-        print(f"carrierDiv id : {carrier_div}")
-        print(f"planId id : {plan_id}")
-        print(f"state id : {state}")
+        intent_id = generate_random_intentid()
 
         if items:
             for data in items:
                 if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['planId'] == plan_id and data['key']['state'] == state:
-                    return data['intentid']
-        else:
-            return generate_random_intentid()
+                    intent_id = data['intentid']
+        return intent_id
     except Exception as e:
         return {
             'statusCode': 500,
