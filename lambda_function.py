@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Attr
 
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('IntentsTable')
+table = dynamodb.Table('Bef_Intent_Api_Dev')
 current_time = datetime.datetime.now().isoformat()
 
 def lambda_handler(event, context):
@@ -48,12 +48,12 @@ def dynamo_table_scan(filter_expression):
                         FilterExpression=filter_expression
                     )
     items = get_response.get('Items', [])
-    while 'LastEvaluatedKey' in response:
-        response = table.scan(
+    while 'LastEvaluatedKey' in get_response:
+        paginate_response = table.scan(
             FilterExpression=filter_expression,
-            ExclusiveStartKey=response['LastEvaluatedKey']
+            ExclusiveStartKey=get_response['LastEvaluatedKey']
         )
-        items.extend(response.get('Items', []))
+        items.extend(paginate_response.get('Items', []))
     return items
 
 def dynamodb_put_data(payload):
