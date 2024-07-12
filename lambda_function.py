@@ -82,7 +82,6 @@ def dynamodb_put_data(payload):
             'create_date': current_time,
             'update_date': None
         }
-    print(f"dynamo db put data item {item}")
     try:
         existing_item = table.get_item(Key={'intentid': item['intentid']}).get('Item')
         print(f"existing data : {existing_item}")
