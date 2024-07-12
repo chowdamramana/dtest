@@ -65,8 +65,9 @@ def dynamodb_put_data(payload):
         intent_key.get('planId'),
         intent_key.get('state')
     )
-    intentid = get_existing_intentid(intent_type_id, org_id, carrier_div, plan_id, state) or generate_random_intentid()
-
+    
+    intentid = get_intentid(intent_type_id, org_id, carrier_div, plan_id, state)
+   
     item = {
             'intentid': intentid, 
             'intentTypeId': intent_type_id,
@@ -97,7 +98,7 @@ def generate_random_intentid():
     characters = string.ascii_lowercase + string.digits
     return ''.join(random.choice(characters) for _ in range(intentid_length))
 
-def get_existing_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
+def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
     filter_expression = (
         Attr('intentTypeId').eq(intent_type_id) &
         Attr('key.orgId').eq(org_id) &
@@ -108,4 +109,5 @@ def get_existing_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
     items = dynamo_table_scan(filter_expression)
     if items:
         return items[0]['intentid']
-    return None
+    else:
+        return generate_random_intentid()
