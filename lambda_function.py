@@ -88,8 +88,10 @@ def dynamodb_put_data(payload):
             item['create_date'] = existing_item['create_date']
         else:
             print(f"Item {intentid} not found in DynamoDB")
+
     except Exception as e:
         print(f"Error fetching item from DynamoDB: {str(e)}")
+        
     put_response = table.put_item(Item=item)
     return put_response
 
@@ -106,7 +108,12 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
         Attr('key.planId').eq(plan_id) &
         Attr('key.state').eq(state)
     )
-    items = dynamo_table_scan(filter_expression)
+
+    try:
+        items = dynamo_table_scan(filter_expression)
+    except Exception as e:
+        print(f"failed to perform scan to get intent id {e}")
+
     if items:
         return items[0]['intentid']
     else:
