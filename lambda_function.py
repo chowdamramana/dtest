@@ -112,7 +112,7 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
 
     try:
         items = dynamo_table_scan(filter_expression)
-        print(f"itend id verification items {items}")
+        print(f"intentid verification items {items}")
         if items:
             for data in items:
                 if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['plan_id'] == plan_id and data['key']['state'] == state:
