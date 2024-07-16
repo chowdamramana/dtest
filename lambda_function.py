@@ -14,17 +14,19 @@ current_time = datetime.datetime.now().isoformat()
 def lambda_handler(event, context):
     try:
         print(f"query string parameters {event['queryStringParameters']}")
-        request_method = event['requestContext']['http']['method']
+        request = event['requestContext']['http']
 
-        if request_method == 'POST':
+        if request['method'] == 'POST':
             payload = decode_payload(event['body'])
             dynamodb_put_data(payload)     
             return {
                 'statusCode': 200,
                 'body': json.dumps('Item inserted/updated successfully in DynamoDB')
             }
-        elif request_method == 'GET':
-            intentid_param = event['queryStringParameters']['intentid']
+        elif request['method'] == 'GET':
+            path_parts = request['path'].split('/')
+            # The intentid should be the last element in the path_parts list
+            intentid_param = path_parts[-1]
             intentid_filter_expression = Attr('intentTypeId').eq(intentid_param)
             items = dynamo_table_scan(intentid_filter_expression)
             return {
