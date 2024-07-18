@@ -4,12 +4,19 @@ import datetime
 import base64
 import random
 import string
+import sys
+import os
 from boto3.dynamodb.conditions import Attr
+sys.path.append(os.path.join(os.path.dirname(__file__), 'packages'))
+
+from fastapi import FastAPI
 
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('bef_Intent_Api_Dev')
 current_time = datetime.datetime.now().isoformat()
+app = FastAPI()
+
 
 def lambda_handler(event, context):
     try:
@@ -24,10 +31,9 @@ def lambda_handler(event, context):
                 'body': json.dumps('Item inserted/updated successfully in DynamoDB')
             }
         elif request['method'] == 'GET':
-            path_parts = request['path'].split('/')
             # The intentid should be the last element in the path_parts list
-            intentid_param = path_parts[-1]
-            intentid_filter_expression = Attr('intentTypeId').eq(intentid_param)
+            intentid_param = get_intent_id()
+            intentid_filter_expression = Attr('intentid').eq(intentid_param)
             items = dynamo_table_scan(intentid_filter_expression)
             return {
                 'statusCode': 200,
@@ -129,3 +135,6 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
             'body': json.dumps(f'failed to perform scan to get intent id: {str(e)}')
         }
     
+@app.get ("/evernorth/v1/intent/intent_lambda/{intentid}")
+async def get_intent_id(intentid: str):
+    return intentid
