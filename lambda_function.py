@@ -111,7 +111,7 @@ def generate_random_intentid():
     return ''.join(random.choice(characters) for _ in range(intentid_length))
 
 def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
-    filter_expression = Attr('intentTypeId').eq(intent_type_id)
+    # filter_expression = Attr('intentTypeId').eq(intent_type_id)
     # filter_expression = (
     #     Attr('intentTypeId').eq(intent_type_id) &
     #     Attr('key.orgId').eq(org_id) &
@@ -119,21 +119,23 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
     #     Attr('key.planId').eq(plan_id) &
     #     Attr('key.state').eq(state)
     # )
+    intent_id = generate_random_intentid()
+    return intent_id
 
-    try:
-        items = dynamo_table_scan(filter_expression)
-        intent_id = generate_random_intentid()
+    # try:
+    #     items = dynamo_table_scan(filter_expression)
+    #     intent_id = generate_random_intentid()
 
-        if items:
-            for data in items:
-                if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['planId'] == plan_id and data['key']['state'] == state:
-                    intent_id = data['intentid']
-        return intent_id
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps(f'failed to perform scan to get intent id: {str(e)}')
-        }
+    #     if items:
+    #         for data in items:
+    #             if data['intentTypeId'] == intent_type_id and data['key']['orgId'] == org_id and data['key']['carrierDiv'] == carrier_div and data['key']['planId'] == plan_id and data['key']['state'] == state:
+    #                 intent_id = data['intentid']
+    #     return intent_id
+    # except Exception as e:
+    #     return {
+    #         'statusCode': 500,
+    #         'body': json.dumps(f'failed to perform scan to get intent id: {str(e)}')
+    #     }
     
 @app.get ("/evernorth/v1/intent/intent_lambda/{intentid}")
 async def get_intent_id(intentid: str):
