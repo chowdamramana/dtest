@@ -20,7 +20,6 @@ app = FastAPI()
 
 def lambda_handler(event, context):
     try:
-        print(f"query string parameters {event['queryStringParameters']}")
         request = event['requestContext']['http']
 
         if request['method'] == 'POST':
