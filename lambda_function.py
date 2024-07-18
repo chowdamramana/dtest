@@ -33,6 +33,7 @@ def lambda_handler(event, context):
         elif request['method'] == 'GET':
             # The intentid should be the last element in the path_parts list
             intentid_param = get_intent_id()
+            print(f"intent id {intentid_param}")
             intentid_filter_expression = Attr('intentid').eq(intentid_param)
             items = dynamo_table_scan(intentid_filter_expression)
             return {
@@ -137,6 +138,6 @@ def get_intentid(intent_type_id, org_id, carrier_div, plan_id, state):
     #         'body': json.dumps(f'failed to perform scan to get intent id: {str(e)}')
     #     }
     
-@app.get ("/evernorth/v1/intent/intent_lambda/{intentid}")
+@app.get("/evernorth/v1/intent/intent_lambda/{intentid}")
 async def get_intent_id(intentid: str):
     return intentid
