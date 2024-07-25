@@ -22,7 +22,6 @@ async def get_intent_id(intentid: str):
         if not items:
             raise HTTPException(status_code=404, detail="Item not found")
         
-        # Return the items in the specified response format
         return {
             'statusCode': 200,
             'body': json.dumps(items)
