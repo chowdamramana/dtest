@@ -5,7 +5,7 @@ import base64
 import random
 import string
 from boto3.dynamodb.conditions import Attr
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from mangum import Mangum
 
 
