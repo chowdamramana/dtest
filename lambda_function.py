@@ -5,29 +5,10 @@ import base64
 import random
 import string
 from boto3.dynamodb.conditions import Attr
-from fastapi import FastAPI, HTTPException
-from mangum import Mangum
 
-
-app = FastAPI()
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('bef_Intent_Api_Dev')
 current_time = datetime.datetime.now().isoformat()
-
-@app.get("/evernorth/v1/intent/intent_lambda/{intentid}")
-async def get_intent_id(intentid: str):
-    try:
-        intentid_filter_expression = Attr('intentid').eq(intentid)
-        items = dynamo_table_scan(intentid_filter_expression)
-        if not items:
-            raise HTTPException(status_code=404, detail="Item not found")
-        
-        return {
-            'statusCode': 200,
-            'body': json.dumps(items)
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 def decode_payload(body):
     decoded_bytes = base64.b64decode(body)
@@ -94,10 +75,17 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps('Item inserted/updated successfully in DynamoDB')
             }
+        elif request['method'] == 'GET':
+            path_parts = request['path'].split('/')
+            intentid_param = path_parts[-1]
+            intentid_filter_expression = Attr('intentid').eq(intentid_param)
+            items = dynamo_table_scan(intentid_filter_expression)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(items)
+            }
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps(f'Error: {str(e)}')
         }
-
-handler = Mangum(app)
