@@ -28,7 +28,7 @@ def dynamo_table_scan(filter_expression):
         items.extend(paginate_response.get('Items', []))
     return items
 
-def dynamodb_put_data(payload):
+def dynamodb_put_data(payload, intentid):
     intent_type_id = payload.get('intentTypeId')
     intent_key = payload.get('key', {})
     org_id, carrier_div, plan_id, state = (
@@ -37,7 +37,6 @@ def dynamodb_put_data(payload):
         intent_key.get('planId'),
         intent_key.get('state')
     )
-    intentid = generate_random_intentid()
     item = {
         'intentid': intentid,
         'intentTypeId': intent_type_id,
@@ -70,10 +69,11 @@ def lambda_handler(event, context):
         request = event['requestContext']['http']
         if request['method'] == 'POST':
             payload = decode_payload(event['body'])
-            dynamodb_put_data(payload)
+            intentid = generate_random_intentid()
+            dynamodb_put_data(payload, intentid)
             return {
                 'statusCode': 200,
-                'body': json.dumps('Item inserted/updated successfully in DynamoDB')
+                'body': json.dumps(f'Item inserted/updated successfully in DynamoDB with intent id {intentid}')
             }
         elif request['method'] == 'GET':
             path_parts = request['path'].split('/')
