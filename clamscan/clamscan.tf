@@ -13,6 +13,9 @@ resource "null_resource" "clamscan_docker_build_and_push" {
       docker push ${aws_ecr_repository.lambda_repo.repository_url}:latest
     EOT
   }
+  triggers = {
+    always_run = "${timestamp()}"
+  }
 
   depends_on = [aws_ecr_repository.clamscan_lambda_repository]
 }
