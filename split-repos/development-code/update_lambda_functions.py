@@ -20,9 +20,12 @@ for function in functions:
     s3_bucket = function['s3_bucket']
     
     # Update Lambda function code
-    response = lambda_client.update_function_code(
-        FunctionName=function_name,
-        S3Bucket=s3_bucket,
-        S3Key=s3_key
-    )
-    print(f'Updated {function_name}: {response}')
+    try:
+        response = lambda_client.update_function_code(
+            FunctionName=function_name,
+            S3Bucket=s3_bucket,
+            S3Key=s3_key
+        )
+        print(f'Updated {function_name}: {response}')
+    except Exception as e:
+        raise f"update {function_name} failed with error {e}"
