@@ -50,7 +50,7 @@ resource "aws_s3_object" "lambda_code" {
 
 resource "null_resource" "update_lambda_functions" {
   provisioner "local-exec" {
-    command = "python ${path.module}/update_lambda_functions.py"
+    command = "/usr/bin/python3 ${path.module}/update_lambda_functions.py - c ${lambda_functions_config_file}"
   }
   triggers = {
     always_run = "${timestamp()}"
