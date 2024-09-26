@@ -47,13 +47,16 @@ resource "aws_s3_object" "lambda_code" {
   source      = data.archive_file.lambda_zip[each.key].output_path # Reference the zipped file
   etag   = filemd5(data.archive_file.lambda_zip[each.key].output_path)
 }
+locals {
+  updated_functions = jsonencode({
+    for function_name, lambda_zip in data.archive_file.lambda_zip :
+    function_name => filemd5(lambda_zip.output_path)
+  })
+}
 
 resource "null_resource" "update_lambda_functions" {
   provisioner "local-exec" {
-    command = "/usr/bin/python3 ${path.module}/update_lambda_functions.py --config ${lambda_functions_config_file} --updated-functions ${jsonencode({
-      for function_name, lambda_zip in data.archive_file.lambda_zip :
-      function_name => filemd5(lambda_zip.output_path)
-    })}"
+    command = "/usr/bin/python3 ${path.module}/update_lambda_functions.py --config ${lambda_functions_config_file} --updated-functions '${local.updated_functions}'"
   }
   triggers = {
     always_run = "${timestamp()}"
