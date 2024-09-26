@@ -50,7 +50,10 @@ resource "aws_s3_object" "lambda_code" {
 
 resource "null_resource" "update_lambda_functions" {
   provisioner "local-exec" {
-    command = "/usr/bin/python3 ${path.module}/update_lambda_functions.py - c ${lambda_functions_config_file}"
+    command = "/usr/bin/python3 ${path.module}/update_lambda_functions.py --config ${lambda_functions_config_file} --updated-functions ${jsonencode({
+      for function_name, lambda_zip in data.archive_file.lambda_zip :
+      function_name => filemd5(lambda_zip.output_path)
+    })}"
   }
   triggers = {
     always_run = "${timestamp()}"
